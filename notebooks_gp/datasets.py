@@ -2,6 +2,7 @@ import random
 
 import numpy as np
 import pandas as pd
+import scipy
 from smt.problems import WingWeight
 from ucimlrepo import fetch_ucirepo
 
@@ -74,10 +75,10 @@ def _wing_weight(x, noisy=False):
     t7 = (x[:, 7] * x[:, 8])**(.49)
     t8 = x[:, 0] * x[:, 9]
     if noisy:
-        return t1 * t2 * t3 * t4 * t5 * t6 * t7 + t8
-    else:
         noise = np.random.normal(0, 25, x.shape[0])
         return t1 * t2 * t3 * t4 * t5 * t6 * t7 + t8 + noise
+    else:
+        return t1 * t2 * t3 * t4 * t5 * t6 * t7 + t8
 
 
 def get_wing_weight(noisy=False):
@@ -109,4 +110,34 @@ def get_wing_weight2():
         X[:, i] = 0.5 * (problem.xlimits[i, 0] + problem.xlimits[i, 1])
     X[:, 0] = np.linspace(150.0, 200.0, nobs)
     y = problem(X)
+    return X, y
+
+
+def _noisy_morokoff(x, d, noisy):
+    noise = np.random.normal(0, 1e-4, x.shape[0]) if noisy else 0
+    return .5 * (1 + 1 / d)**d * (x ** (1 / d)).prod(axis=1) + noise
+
+
+def get_morokoff(noisy=False):
+    cov = np.array(
+        [
+            [1, .9, 0, 0, 0, .05, -.3, 0, 0, 0],
+            [.9, 1, 0, 0, 0, 0, 0, .1, 0, 0],
+            [0, 0, 1, 0, -.3, .1, .4, 0, .05, 0],
+            [0, 0, 0, 1, .4, 0, 0, -.35, 0, 0],
+            [0, 0, -.3, .4, 1, 0, 0, 0, .1, 0],
+            [.05, 0, .1, 0, 0, 1, 0, 0, 0, 0],
+            [-.3, 0, .4, 0, 0, 0, 1, 0, 0, -.3],
+            [0, .1, 0, -.35, 0, 0, 0, 1, 0, 0],
+            [0, 0, .05, 0, .1, 0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 0, 0, -.3, 0, 0, 1]
+        ]
+    )
+
+    nobs = 300
+    d = cov.shape[0]
+    np.random.seed(42)
+    Z = np.random.multivariate_normal(np.repeat(0, d), cov, size=nobs)
+    X = scipy.stats.norm.cdf(Z)
+    y = _noisy_morokoff(X, d, noisy)
     return X, y

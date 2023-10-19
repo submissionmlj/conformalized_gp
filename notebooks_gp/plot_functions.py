@@ -96,4 +96,4 @@ def plot_width_error(model, model_name, ci, mean_value, ci_name, ax, r, c, y=Non
         ", " + str(round(ci[1], 2)) + "], mean = " + str(round(mean_value, 2)) + "}$" + "\n" +
         r"$\bf{Global MSE =" + str(round(np.mean(model["errors"] ** 2), 2)) + "}$"
     )
-    ax[r, c].set_xlim(0, 7)
+    # ax[r, c].set_xlim(0, 7)
