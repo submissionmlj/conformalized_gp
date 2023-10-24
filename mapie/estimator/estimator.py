@@ -589,7 +589,7 @@ class EnsembleStdRegressor(EnsembleRegressor):
             [list(e.predict(X, return_std=True)) for e in self.estimators_]
         ).T
         y_pred_multi, y_std = y_pred[:, 0, :], y_pred[:, 1, :]
-        
+
         # At this point, y_pred_multi is of shape
         # (n_samples_test, n_estimators_). The method
         # ``_aggregate_with_mask`` fits it to the right size
@@ -616,7 +616,7 @@ class EnsembleStdRegressor(EnsembleRegressor):
         check_is_fitted(self, self.fit_attributes)
         y_std = None
         if self.cv == "prefit":
-            y_pred = self.single_estimator_.predict(X)
+            y_pred, y_std = self.single_estimator_.predict(X, return_std=True)
         else:
             if self.method == "naive":
                 y_pred = self.single_estimator_.predict(X)
@@ -698,14 +698,14 @@ class EnsembleStdRegressor(EnsembleRegressor):
         """
         check_is_fitted(self, self.fit_attributes)
 
-        y_pred = self.single_estimator_.predict(X)
-        y_std_multi = None
+        y_pred, y_std = self.single_estimator_.predict(X, return_std=True)
         if not return_multi_pred and not ensemble:
             return y_pred
 
         if self.method in self.no_agg_methods_ or self.cv in self.no_agg_cv_:
             y_pred_multi_low = y_pred[:, np.newaxis]
             y_pred_multi_up = y_pred[:, np.newaxis]
+            y_std_multi = y_std[:, np.newaxis]
         else:
             y_pred_multi, y_std_multi = self._pred_multi(X)
 
