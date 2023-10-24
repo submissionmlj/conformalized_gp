@@ -105,7 +105,7 @@ def _noisy_morokoff(x, d, noisy):
     return .5 * (1 + 1 / d)**d * (x ** (1 / d)).prod(axis=1) + noise
 
 
-def get_morokoff(noisy=False):
+def get_morokoff(noisy=False, nobs=600):
     cov = np.array(
         [
             [1, .9, 0, 0, 0, .05, -.3, 0, 0, 0],
@@ -121,7 +121,6 @@ def get_morokoff(noisy=False):
         ]
     )
 
-    nobs = 300
     d = cov.shape[0]
     np.random.seed(42)
     Z = np.random.multivariate_normal(np.repeat(0, d), cov, size=nobs)
