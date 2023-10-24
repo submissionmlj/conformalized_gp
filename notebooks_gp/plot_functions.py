@@ -138,7 +138,7 @@ def plot_width_error(model, model_name, ax, r, c, max_width=None, y=None, plot_t
 def _plot_tree(model, r, c, ax):
     X_temp = model["width"]
     y_temp = model["errors"]
-    X_temp_train, X_temp_test, y_temp_train, y_temp_test = train_test_split(X_temp, y_temp, test_size=.3)
+    X_temp_train, _, y_temp_train, _ = train_test_split(X_temp, y_temp, test_size=.3)
     tree = DecisionTreeRegressor(min_samples_split=3, max_depth=3).fit(X_temp_train.reshape(-1, 1), y_temp_train)
     pred = tree.predict(np.arange(0, X_temp.max(), .1).reshape(-1, 1))
     ax[r, c].plot(np.arange(0, X_temp.max(), .1), pred)
