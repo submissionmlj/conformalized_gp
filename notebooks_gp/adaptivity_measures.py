@@ -2,15 +2,15 @@ import numpy as np
 import openturns as ot
 import pandas as pd
 from scipy.interpolate import CubicSpline
-from scipy.stats import pearsonr, permutation_test
+from scipy.stats import pearsonr, permutation_test, spearmanr
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.metrics import mean_squared_error
 from sklearn.model_selection import train_test_split
 
 
-def hsic_ot(errors, widths):
-    X = ot.Sample(errors[:, np.newaxis])
-    Y = ot.Sample(widths[:, np.newaxis])
+def hsic_ot(widths, errors):
+    Y = ot.Sample(errors[:, np.newaxis])
+    X = ot.Sample(widths[:, np.newaxis])
 
     covarianceModelCollection = []
     i = 0
@@ -44,10 +44,22 @@ def bootstrap_correlation(data1, data2, num_iterations=1000):
     return correlations, p_values
 
 
-def my_correlation(data, *args, **kwargs):
+def my_correlation_pearson(data, *args, **kwargs):
     data_split = [i.split('--') for i in data]
     data_float = np.array(data_split).astype(float)
-    return pearsonr(data_float[:, 0], data_float[:, 1]).correlation
+    return pearsonr(
+        data_float[:, 0],
+        data_float[:, 1]
+    ).correlation
+
+
+def my_correlation_spearman(data, *args, **kwargs):
+    data_split = [i.split('--') for i in data]
+    data_float = np.array(data_split).astype(float)
+    return spearmanr(
+        data_float[:, 0],
+        data_float[:, 1]
+    ).correlation
 
 
 def spline_mse(data, *args, **kwargs):
