@@ -3,7 +3,7 @@ import random
 import numpy as np
 import pandas as pd
 import scipy
-from smt.problems import WingWeight
+from sklearn.datasets import fetch_california_housing
 from ucimlrepo import fetch_ucirepo
 
 
@@ -100,19 +100,6 @@ def get_wing_weight(noisy=False):
     return X, y
 
 
-def get_wing_weight2():
-    nobs = 600
-    ndim = 10
-    problem = WingWeight(ndim=ndim)
-
-    X = np.ones((nobs, ndim))
-    for i in range(ndim):
-        X[:, i] = 0.5 * (problem.xlimits[i, 0] + problem.xlimits[i, 1])
-    X[:, 0] = np.linspace(150.0, 200.0, nobs)
-    y = problem(X)
-    return X, y
-
-
 def _noisy_morokoff(x, d, noisy):
     noise = np.random.normal(0, 1e-4, x.shape[0]) if noisy else 0
     return .5 * (1 + 1 / d)**d * (x ** (1 / d)).prod(axis=1) + noise
@@ -141,3 +128,25 @@ def get_morokoff(noisy=False):
     X = scipy.stats.norm.cdf(Z)
     y = _noisy_morokoff(X, d, noisy)
     return X, y
+
+
+def get_california(n="all"):
+    data = fetch_california_housing()
+    X = data["data"]
+    y = data["target"]
+
+    if n == "all":
+        return X, y
+    elif isinstance(n, int):
+        np.random.seed(42)
+        indices = np.random.choice(len(X), size=n, replace=False)
+        return X[indices], y[indices]
+    elif isinstance(n, float):
+        if n <= 1:
+            np.random.seed(40)
+            indices = np.random.choice(len(X), size=int(n * len(X)), replace=False)
+            return X[indices], y[indices]
+        else:
+            raise ValueError("If n is a float, it should be less or equal to 1.")
+    else:
+        raise ValueError("n must be either equal to 'all', an int or a float")
