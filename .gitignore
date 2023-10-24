@@ -85,3 +85,4 @@ target/
 
 # ZIP files
 *.zip
+nohup.out
