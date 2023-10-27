@@ -46,13 +46,15 @@ def get_abalone():
 
 
 def get_mpg():
-    auto_mpg = fetch_ucirepo(id=9)
+    auto_mpg = fetch_ucirepo(id=9).data
 
     # data (as pandas dataframes)
-    X = auto_mpg.data.features
-    y = auto_mpg.data.targets
+    data = auto_mpg.features
+    features_name = data.columns
+    data["y"] = auto_mpg.targets.values[:, 0]
+    data = data.dropna()
 
-    return X.values, y.values
+    return data[features_name].values, data["y"].values
 
 
 def get_liver():
@@ -149,3 +151,11 @@ def get_california(n="all"):
             raise ValueError("If n is a float, it should be less or equal to 1.")
     else:
         raise ValueError("n must be either equal to 'all', an int or a float")
+
+
+def get_cpu():
+    with open("../datasets/machine.data") as f:
+        data = f.readlines()
+    data_clean = [line.split(",")[2:] for line in data]
+    data_clean = np.array([[float(x) for x in line] for line in data_clean])
+    return data_clean[:, :-1], data_clean[:, -1]

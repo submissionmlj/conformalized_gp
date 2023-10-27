@@ -70,20 +70,23 @@ def plot_prediction_intervals(
     ax.set_title((title))
 
 
-def plot_distribution(distribution, model_name, xlabel, ax):
+def plot_distribution(distribution, model_name, xlabel, ax, xmax=1):
     sns.histplot(
         distribution, kde=True,
         bins=100, color='darkblue', ax=ax
     )
     ax.set_xlabel(xlabel, size=15)
     ax.set_title(model_name)
-    ax.set_xlim(0, max(1, max(distribution)))
+    ax.set_xlim(0, max(xmax, max(distribution)))
 
 
-def get_max_width(models, index_confidence):
+def get_max_variable(models, variable, index_confidence):
     max_width = 0
     for model in models.values():
-        max_width = max(max_width, model["width"][index_confidence])
+        if isinstance(model[variable], scipy.stats._resampling.BootstrapResult):
+            max_width = max(max_width, max(model[variable].bootstrap_distribution))
+        else:
+            max_width = max(max_width, model[variable][index_confidence])
     return max_width
 
 
@@ -108,6 +111,10 @@ def plot_width_error(model, model_name, ax, r, c, max_width=None, y=None, plot_t
         )
     if max_width:
         ax[r, c].set_xlim(0, max_width * 1.1)
+    if plot_rank:
+        ax[r, c].set_xlim(0, len(error) * 1.1)
+        ax[r, c].set_ylim(0, len(error) * 1.1)
+
     ci_pearson_correlation = model["pearson_correlation_to_error"].confidence_interval
     mean_pearson_correlation = np.mean(model["pearson_correlation_to_error"].bootstrap_distribution)
     ci_spearman_correlation = model["spearman_correlation_to_error"].confidence_interval
