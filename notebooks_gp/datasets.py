@@ -159,3 +159,10 @@ def get_cpu():
     data_clean = [line.split(",")[2:] for line in data]
     data_clean = np.array([[float(x) for x in line] for line in data_clean])
     return data_clean[:, :-1], data_clean[:, -1]
+
+
+def get_dthyc():
+    X = np.load("/home/innerve/conformalized_gp/datasets/x.npy").T
+    y = np.load("/home/innerve/conformalized_gp/datasets/g_x.npy")
+
+    return X, y
