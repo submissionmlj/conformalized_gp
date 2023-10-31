@@ -457,8 +457,10 @@ class GPCrossConformityScore(ConformityScore):
 
     def __init__(
         self,
+        power=1,
         sym=True
     ) -> None:
+        self.pow = power
         super().__init__(sym=sym, consistency_check=False)
 
     def get_signed_conformity_scores(
@@ -473,7 +475,7 @@ class GPCrossConformityScore(ConformityScore):
         and the observed ones, from the following formula:
         signed conformity score = y - y_pred
         """
-        y_std = np.maximum(self.eps, y_std)
+        y_std = np.maximum(self.eps, y_std) ** self.pow
         return np.subtract(y, y_pred) / y_std
 
     def get_conformity_scores(
@@ -579,7 +581,7 @@ class GPCrossConformityScore(ConformityScore):
             X, ensemble
         )
         signed = -1 if self.sym else 1
-        conformity_scores = conformity_scores * np.maximum(self.eps, y_std_multi)
+        conformity_scores = conformity_scores * np.maximum(self.eps, y_std_multi ** self.pow)
         if method == "plus":
             alpha_low = alpha_np if self.sym else alpha_np / 2
             alpha_up = 1 - alpha_np if self.sym else 1 - alpha_np / 2
