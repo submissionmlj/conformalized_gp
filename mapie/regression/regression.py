@@ -451,7 +451,7 @@ class MapieRegressor(BaseEstimator, RegressorMixin):
 
         # Casting
         cv = cast(BaseCrossValidator, cv)
-        estimator = cast(RegressorMixin, estimator)
+        # estimator = cast(RegressorMixin, estimator)
         cs_estimator = cast(ConformityScore, cs_estimator)
         agg_function = cast(Optional[str], agg_function)
         X = cast(NDArray, X)
@@ -505,21 +505,25 @@ class MapieRegressor(BaseEstimator, RegressorMixin):
          X,
          y,
          sample_weight) = self._check_fit_parameters(X, y, sample_weight)
-        my_regressor = (
-            EnsembleRegressor if not self.model_has_std else EnsembleStdRegressor
-        )
-        self.estimator_ = my_regressor(
-            estimator,
-            self.method,
-            cv,
-            agg_function,
-            self.n_jobs,
-            self.random_state,
-            self.test_size,
-            self.verbose
-        )
-        # Fit the prediction function
-        self.estimator_ = self.estimator_.fit(X, y, sample_weight)
+        if not isinstance(estimator, EnsembleRegressor):
+            my_regressor = (
+                EnsembleRegressor if not self.model_has_std else EnsembleStdRegressor
+            )
+            self.estimator_ = my_regressor(
+                estimator,
+                self.method,
+                cv,
+                agg_function,
+                self.n_jobs,
+                self.random_state,
+                self.test_size,
+                self.verbose
+            )
+        else:
+            self.estimator_ = estimator
+        if not self.estimator_.is_fitted:
+            self.estimator_ = self.estimator_.fit(X, y, sample_weight)
+
         if self.model_has_std:
             y_pred, y_std = self.estimator_.predict_calib(X)
             self.conformity_scores_ = \
