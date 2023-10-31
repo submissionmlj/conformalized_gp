@@ -173,6 +173,7 @@ class EnsembleRegressor(EnsembleEstimator):
         self.random_state = random_state
         self.test_size = test_size
         self.verbose = verbose
+        self.is_fitted = False
 
     @staticmethod
     def _fit_oof_estimator(
@@ -440,6 +441,7 @@ class EnsembleRegressor(EnsembleEstimator):
         self.single_estimator_ = single_estimator_
         self.estimators_ = estimators_
 
+        self.is_fitted = True
         return self
 
     def predict(
